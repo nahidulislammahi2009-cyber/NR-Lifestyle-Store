@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NR AI Command Center</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:white;font-family:Arial,sans-serif}
+.container{max-width:900px;margin:auto;padding:22px}
+header{background:#172438;padding:22px;border-radius:14px;margin-bottom:20px}
+h1{color:#48d6a0;font-size:25px}
+.card{background:#1c2b40;padding:22px;border-radius:14px;margin:15px 0}
+input{width:100%;padding:13px;margin:8px 0;border:0;border-radius:8px}
+button{padding:12px 18px;border:0;border-radius:8px;background:#24bd87;color:#071b16;font-weight:bold;margin-top:10px}
+.hidden{display:none}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.item{background:#263950;padding:20px;border-radius:10px}
+small{color:#b6c5d6}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>NR AI Command Center</h1>
+<p>Business Management System</p>
+<small>Powered by NR AI</small>
+</header>
+
+<section id="login" class="card">
+<h2>Admin Login</h2>
+<input id="email" type="email" placeholder="Admin Email">
+<input id="password" type="password" placeholder="Password">
+<button id="loginBtn">Login</button>
+<p id="message"></p>
+</section>
+
+<section id="dashboard" class="hidden">
+<div class="card">
+<h2>Welcome, Admin!</h2>
+<p>তোমার NR AI Command Center প্রস্তুত।</p>
+<button id="logoutBtn">Logout</button>
+</div>
+
+<div class="grid">
+<div class="item">📦<h3>Products</h3><small>Product Management</small></div>
+<div class="item">🛒<h3>Orders</h3><small>Order Management</small></div>
+<div class="item">👥<h3>Customers</h3><small>Customer Management</small></div>
+<div class="item">🤖<h3>NR AI Assistant</h3><small>Coming Soon</small></div>
+<div class="item">📊<h3>Reports</h3><small>Sales & Profit</small></div>
+<div class="item">⚙️<h3>Settings</h3><small>System Settings</small></div>
+</div>
+</section>
+</div>
+
+<script type="module">
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+
+import {
+ getAuth,
+ signInWithEmailAndPassword,
+ onAuthStateChanged,
+ signOut
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+
+// Firebase Config এখানে বসাতে হবে
+const firebaseConfig = {
+ apiKey: "YOUR_API_KEY",
+ authDomain: "YOUR_AUTH_DOMAIN",
+ projectId: "nr-ai-agent",
+ storageBucket: "YOUR_STORAGE_BUCKET",
+ messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+ appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const login = document.getElementById("login");
+const dashboard = document.getElementById("dashboard");
+const message = document.getElementById("message");
+
+onAuthStateChanged(auth, user => {
+ if(user){
+  login.classList.add("hidden");
+  dashboard.classList.remove("hidden");
+ }else{
+  dashboard.classList.add("hidden");
+  login.classList.remove("hidden");
+ }
+});
+
+document.getElementById("loginBtn").onclick = async () => {
+ const email = document.getElementById("email").value.trim();
+ const password = document.getElementById("password").value;
+
+ try {
+  await signInWithEmailAndPassword(auth,email,password);
+  message.textContent = "";
+ } catch(error) {
+  message.textContent = "Login হয়নি। Email ও Password পরীক্ষা করো।";
+ }
+};
+
+document.getElementById("logoutBtn").onclick = async () => {
+ await signOut(auth);
+};
+</script>
+</body>
+</html>
