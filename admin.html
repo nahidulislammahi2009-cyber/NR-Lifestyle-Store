@@ -33,7 +33,7 @@ small{color:#b6c5d6}
 <h2>Admin Login</h2>
 <input id="email" type="email" placeholder="Admin Email">
 <input id="password" type="password" placeholder="Password">
-<button id="loginBtn">Login</button>
+<button id="logintn">Login</button>
 <p id="message"></p>
 </section>
 
@@ -41,7 +41,7 @@ small{color:#b6c5d6}
 <div class="card">
 <h2>Welcome, Admin!</h2>
 <p>তোমার NR AI Command Center প্রস্তুত।</p>
-<button id="logoutBtn">Logout</button>
+<button id="logouttn">Logout</button>
 </div>
 
 <div class="grid">
@@ -116,6 +116,41 @@ document.getElementById("loginBtn").onclick = async () => {
 document.getElementById("logoutBtn").onclick = async () => {
   await signOut(auth);
 };
+ <section id="products" style="padding:20px;background:#172438;border-radius:12px;margin:20px 0;">
+  <h2>📦 Product Management</h2>
+
+  <input id="productName" placeholder="পণ্যের নাম"
+    style="padding:12px;width:100%;margin:6px 0;">
+
+  <input id="productPrice" type="number" placeholder="পণ্যের দাম"
+    style="padding:12px;width:100%;margin:6px 0;">
+
+  <input id="productStock" type="number" placeholder="স্টক"
+    style="padding:12px;width:100%;margin:6px 0;">
+
+  <button onclick="addProduct()"
+    style="padding:12px;background:#16a34a;color:white;border:0;border-radius:8px;">
+    পণ্য যোগ করো
+  </button>
+
+  <div id="productList"></div>
+</section>
+
+<script>
+async function addProduct() {
+  const name = document.getElementById("productName").value.trim();
+  const price = Number(document.getElementById("productPrice").value);
+  const stock = Number(document.getElementById("productStock").value);
+
+  if (!name || price <= 0 || !Number.isFinite(price) ||
+      stock < 0 || !Number.isInteger(stock)) {
+    alert("সঠিক পণ্যের নাম, দাম ও স্টক দাও");
+    return;
+  }
+
+  alert("ফর্ম প্রস্তুত। Firebase সংযোগ পরের ধাপে করব।");
+}
+</script>
 </script>
 </body>
 </html>
