@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>NR AI Command Center</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:#eef4fb;font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;line-height:1.5}
+header{background:#172438;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+h1{color:#48d6a0;font-size:21px;margin:0}
+h2{font-size:19px;margin:0 0 12px}h3{margin:0 0 6px;font-size:16px}
+.c{max-width:1000px;margin:auto;padding:14px}
+.card{background:#172438;padding:16px;border-radius:13px;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:#263950;padding:14px;border-radius:12px;font-size:14px}
+.stat b{display:block;font-size:22px;color:#48d6a0}
+input,textarea,select{width:100%;padding:11px;margin:4px 0 10px;border:1px solid #344b65;border-radius:8px;background:#f4f7fb;color:#152238;font-size:15px}
+textarea{min-height:70px}
+button{border:0;border-radius:8px;padding:10px 14px;margin:3px;background:#24bd87;color:#071b16;font-weight:700;cursor:pointer}
+button:disabled{opacity:.5}
+.sec{background:#344b65;color:#fff}.dng{background:#bd4545;color:#fff}
+.hid{display:none!important}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px}.tabs button{white-space:nowrap}.tabs .on{background:#48d6a0}
+.rec{background:#263950;border-radius:10px;padding:12px;margin:10px 0}
+.rec img{width:100%;max-height:170px;object-fit:cover;border-radius:8px}
+.mu{color:#b6c5d6;font-size:13px}.ok{color:#48d6a0}.er{color:#ff8585}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:130px}
+#login{max-width:420px;margin:50px auto}
+hr{border:0;border-top:1px solid #344b65;margin:16px 0}
+:focus-visible{outline:2px solid #48d6a0}
+</style>
+</head>
+<body>
+<header><div><h1>NR AI Command Center</h1><small>ব্যবসা পরিচালনা</small></div><button class="dng hid" id="out">Logout</button></header>
+<div class="c">
+
+<section id="login" class="card">
+  <h2>Admin Login</h2>
+  <input id="em" type="email" placeholder="Admin Email" autocomplete="username">
+  <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+  <button id="inBtn">Login</button>
+  <p id="lm" class="er"></p>
+</section>
+
+<main id="app" class="hid">
+  <div class="tabs" id="tabs">
+    <button data-p="home" class="on">ড্যাশবোর্ড</button><button data-p="products">পণ্য</button><button data-p="orders">অর্ডার</button>
+    <button data-p="customers">কাস্টমার</button><button data-p="expenses">খরচ</button>
+  </div>
+
+  <section class="pg" id="p-home">
+    <div class="grid" id="stats"></div>
+    <div class="card"><h2>কম স্টকের পণ্য (৫ বা কম)</h2><div id="low"></div></div>
+    <div class="card"><button id="reload">🔄 তথ্য Refresh</button> <span class="mu" id="upd"></span>
+      <p class="mu">বিক্রি = Confirmed, Shipped ও Delivered অর্ডারের মোট। Pending ও Cancelled ধরা হয় না। ব্যালেন্স = বিক্রি − খরচ, এটা নিট লাভ নয়।</p></div>
+  </section>
+
+  <section class="pg card hid" id="p-products">
+    <h2>পণ্য ব্যবস্থাপনা</h2>
+    <input type="hidden" id="pid">
+    <input id="pn" placeholder="পণ্যের নাম">
+    <div class="row"><input id="pp" type="number" min="1" placeholder="দাম (৳)"><input id="ps" type="number" min="0" placeholder="স্টক"></div>
+    <input id="pc" placeholder="ক্যাটাগরি (যেমন: ছেলে, মেয়ে, শিশু, Lifestyle)">
+    <input id="pi" type="url" placeholder="ছবির লিংক https://...">
+    <textarea id="pd" placeholder="বিবরণ"></textarea>
+    <div class="row"><input id="pz" placeholder="সাইজ: M, L, XL"><input id="pk" placeholder="কালার: Black, White"></div>
+    <button id="psave">পণ্য সংরক্ষণ</button><button class="sec" id="pclear">ফর্ম পরিষ্কার</button>
+    <p id="pm"></p><hr>
+    <input id="psearch" placeholder="পণ্য খুঁজুন"><div id="plist"></div>
+  </section>
+
+  <section class="pg card hid" id="p-orders">
+    <h2>অর্ডার ব্যবস্থাপনা</h2>
+    <details class="rec"><summary>➕ ফোন/Facebook থেকে আসা অর্ডার হাতে যোগ করুন</summary>
+      <input id="on" placeholder="কাস্টমারের নাম"><input id="oph" type="tel" placeholder="ফোন নম্বর">
+      <textarea id="oa" placeholder="ঠিকানা"></textarea>
+      <select id="op"></select>
+      <div class="row"><input id="oq" type="number" min="1" value="1"><input id="od" type="number" min="0" value="0" placeholder="ডেলিভারি চার্জ"></div>
+      <button id="oadd">অর্ডার সংরক্ষণ (Confirmed)</button><p id="om"></p>
+    </details>
+    <select id="ofilter"><option value="">সব অর্ডার</option><option>Pending</option><option>Confirmed</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select>
+    <div id="olist"></div>
+  </section>
+
+  <section class="pg card hid" id="p-customers"><h2>কাস্টমার</h2><p class="mu">অর্ডার Confirmed করলে কাস্টমার নিজে যোগ হয়, ফোন নম্বর ধরে একজন একবারই থাকে।</p><div id="clist"></div></section>
+
+  <section class="pg card hid" id="p-expenses">
+    <h2>ব্যবসার খরচ</h2>
+    <input id="et" placeholder="খরচের নাম"><input id="ea" type="number" min="1" placeholder="টাকা"><input id="ed" type="date">
+    <button id="eadd">খরচ সংরক্ষণ</button><p id="em2"></p><hr><div id="elist"></div>
+  </section>
+</main>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {getFirestore,collection,addDoc,getDocs,doc,setDoc,updateDoc,deleteDoc,increment,serverTimestamp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+const app=initializeApp({
+ apiKey:"AIzaSyCXEnGG8U9EyRsJJJCS_hvTDlU9FnYpECM",authDomain:"nr-ai-agent.firebaseapp.com",projectId:"nr-ai-agent",
+ storageBucket:"nr-ai-agent.firebasestorage.app",messagingSenderId:"368975930141",appId:"1:368975930141:web:ae260617eabeb2f70e37f4"
+});
+const ADMIN_UID="4CsU5I0yfSXpQrbIKziWwDwgu4t1";
+const auth=getAuth(app),db=getFirestore(app);
+const $=id=>document.getElementById(id);
+const money=n=>"৳"+Number(n||0).toLocaleString("en-US");
+const el=(t,x,c)=>{const e=document.createElement(t);if(x!==undefined)e.textContent=x;if(c)e.className=c;return e};
+const msg=(id,t,bad)=>{$(id).textContent=t;$(id).className=bad?"er":"ok"};
+const isAdmin=()=>auth.currentUser&&auth.currentUser.uid===ADMIN_UID;
+const COUNTED=["Confirmed","Shipped","Delivered"];
+let P=[],O=[],C=[],E=[];
+$("ed").value=new Date().toISOString().slice(0,10);
+
+/* tabs */
+function show(n){document.querySelectorAll(".pg").forEach(x=>x.classList.add("hid"));$("p-"+n).classList.remove("hid");
+ document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.p===n))}
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>show(b.dataset.p));
+
+/* auth */
+onAuthStateChanged(auth,async u=>{
+ if(u&&u.uid===ADMIN_UID){$("login").classList.add("hid");$("app").classList.remove("hid");$("out").classList.remove("hid");await loadAll()}
+ else{$("app").classList.add("hid");$("login").classList.remove("hid");$("out").classList.add("hid");
+  if(u){await signOut(auth);msg("lm","এই অ্যাকাউন্ট Admin নয়।",true)}}
+});
+$("inBtn").onclick=async()=>{
+ const e=$("em").value.trim(),p=$("pw").value;if(!e||!p){msg("lm","Email ও Password দিন।",true);return}
+ $("inBtn").disabled=true;msg("lm","লগইন হচ্ছে...");
+ try{await signInWithEmailAndPassword(auth,e,p);$("pw").value=""}catch(x){msg("lm","Login হয়নি: "+x.code,true)}
+ finally{$("inBtn").disabled=false}
+};
+$("out").onclick=()=>signOut(auth);
+
+/* data */
+const get=async n=>(await getDocs(collection(db,n))).docs.map(d=>({id:d.id,...d.data()}));
+async function loadAll(){
+ if(!isAdmin())return;
+ try{[P,O,C,E]=await Promise.all([get("products"),get("orders"),get("customers"),get("expenses")]);
+  O.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  render();$("upd").textContent="আপডেট: "+new Date().toLocaleTimeString()}
+ catch(e){alert("তথ্য লোড হয়নি: "+e.code+". Firestore Rules দেখুন।")}
+}
+$("reload").onclick=loadAll;
+
+/* render */
+function render(){dash();prods();orderOpts();orders();custs();exps()}
+function dash(){
+ const sales=O.filter(o=>COUNTED.includes(o.status)).reduce((s,o)=>s+Number(o.total||0),0);
+ const exp=E.reduce((s,e)=>s+Number(e.amount||0),0);
+ const st=$("stats");st.replaceChildren();
+ [["মোট পণ্য",P.length],["মোট স্টক",P.reduce((s,p)=>s+Number(p.stock||0),0)],["মোট অর্ডার",O.length],
+  ["নতুন (Pending)",O.filter(o=>(o.status||"Pending")==="Pending").length],["বিক্রি",money(sales)],["খরচ",money(exp)],["ব্যালেন্স",money(sales-exp)]]
+ .forEach(([k,v])=>{const d=el("div",undefined,"stat");d.append(el("span",k),el("b",String(v)));st.append(d)});
+ const low=P.filter(p=>Number(p.stock||0)<=5),l=$("low");l.replaceChildren();
+ if(!low.length)l.textContent="কম স্টকের পণ্য নেই।";
+ low.forEach(p=>l.append(el("p",p.name+" — স্টক: "+(p.stock??0))));
+}
+function prods(){
+ const l=$("plist");l.replaceChildren();const q=$("psearch").value.trim().toLowerCase();
+ const a=P.filter(p=>(p.name||"").toLowerCase().includes(q));
+ if(!a.length){l.textContent="কোনো পণ্য নেই।";return}
+ a.forEach(p=>{
+  const c=el("div",undefined,"rec");
+  if(p.imageUrl){const i=el("img");i.src=p.imageUrl;i.alt="";i.onerror=()=>i.remove();c.append(i)}
+  c.append(el("h3",p.name),el("div","দাম "+money(p.price)+" • স্টক "+(p.stock??0)+(p.category?" • "+p.category:""),"mu"));
+  const e=el("button","Edit");e.onclick=()=>{
+   $("pid").value=p.id;$("pn").value=p.name||"";$("pp").value=p.price??"";$("ps").value=p.stock??0;$("pc").value=p.category||"";
+   $("pi").value=p.imageUrl||"";$("pd").value=p.description||"";$("pz").value=p.sizes||"";$("pk").value=p.colors||"";
+   $("psave").textContent="পরিবর্তন সংরক্ষণ";scrollTo({top:0,behavior:"smooth"})};
+  const d=el("button","Delete","dng");d.onclick=async()=>{
+   if(!confirm("এই পণ্য মুছবেন?"))return;
+   try{await deleteDoc(doc(db,"products",p.id));await loadAll()}catch(x){msg("pm",x.code,true)}};
+  c.append(e,d);l.append(c);
+ });
+}
+$("psearch").oninput=prods;
+const pclear=()=>{["pid","pn","pp","ps","pc","pi","pd","pz","pk"].forEach(i=>$(i).value="");$("psave").textContent="পণ্য সংরক্ষণ"};
+$("pclear").onclick=pclear;
+$("psave").onclick=async()=>{
+ const name=$("pn").value.trim(),price=Number($("pp").value),stock=Number($("ps").value),img=$("pi").value.trim();
+ if(!name||!(price>0)||!Number.isInteger(stock)||stock<0){msg("pm","নাম, সঠিক দাম ও স্টক দিন।",true);return}
+ if(img){try{if(!/^https?:$/.test(new URL(img).protocol))throw 0}catch{msg("pm","সঠিক ছবির লিংক দিন।",true);return}}
+ const data={name,price,stock,imageUrl:img,category:$("pc").value.trim(),description:$("pd").value.trim(),sizes:$("pz").value.trim(),colors:$("pk").value.trim(),updatedAt:serverTimestamp()};
+ $("psave").disabled=true;
+ try{const id=$("pid").value;
+  if(id)await updateDoc(doc(db,"products",id),data);else await addDoc(collection(db,"products"),{...data,createdAt:serverTimestamp()});
+  pclear();await loadAll();msg("pm","পণ্য সংরক্ষিত হয়েছে।")}
+ catch(x){msg("pm","Error: "+x.code,true)}finally{$("psave").disabled=false}
+};
+
+/* orders */
+const itemsOf=o=>o.items||[{productId:o.productId,qty:o.quantity,name:o.productName}];
+async function setStatus(o,ns){
+ const want=COUNTED.includes(ns),upd={status:ns};
+ if(want&&!o.stockDeducted){
+  for(const i of itemsOf(o)){try{await updateDoc(doc(db,"products",i.productId),{stock:increment(-Number(i.qty||0))})}catch{}}
+  upd.stockDeducted=true;
+  if(o.phone)await setDoc(doc(db,"customers",o.phone),{name:o.customerName||"",phone:o.phone,address:o.address||"",updatedAt:serverTimestamp()},{merge:true});
+ }else if(!want&&o.stockDeducted){
+  for(const i of itemsOf(o)){try{await updateDoc(doc(db,"products",i.productId),{stock:increment(Number(i.qty||0))})}catch{}}
+  upd.stockDeducted=false;
+ }
+ await updateDoc(doc(db,"orders",o.id),upd);
+}
+function orderOpts(){const s=$("op");s.replaceChildren(new Option("পণ্য বাছুন",""));P.forEach(p=>s.append(new Option(p.name+" — "+money(p.price)+" (স্টক "+(p.stock??0)+")",p.id)))}
+function orders(){
+ const l=$("olist");l.replaceChildren();const f=$("ofilter").value;
+ const a=O.filter(o=>!f||(o.status||"Pending")===f);
+ if(!a.length){l.textContent="কোনো অর্ডার নেই।";return}
+ a.forEach(o=>{
+  const c=el("div",undefined,"rec");
+  c.append(el("h3",(o.orderId||o.id)+" — "+(o.customerName||"")),el("div",o.productName||"","mu"),
+   el("div","মোট "+money(o.total)+" (ডেলিভারি "+money(o.delivery)+")"),el("div","📞 "+(o.phone||"-")+" • "+(o.address||""),"mu"));
+  if(o.note)c.append(el("div","নোট: "+o.note,"mu"));
+  const s=el("select");["Pending","Confirmed","Shipped","Delivered","Cancelled"].forEach(x=>s.append(new Option(x,x)));s.value=o.status||"Pending";
+  s.onchange=async()=>{s.disabled=true;try{await setStatus(o,s.value);await loadAll()}catch(x){alert(x.code);s.disabled=false}};
+  const d=el("button","অর্ডার মুছুন","dng");d.onclick=async()=>{
+   if(!confirm("অর্ডার মুছবেন? (স্টক ফেরত আসবে)"))return;
+   try{if(o.stockDeducted)await setStatus(o,"Cancelled");await deleteDoc(doc(db,"orders",o.id));await loadAll()}catch(x){alert(x.code)}};
+  c.append(s,d);l.append(c);
+ });
+}
+$("ofilter").onchange=orders;
+$("oadd").onclick=async()=>{
+ const name=$("on").value.trim(),phone=$("oph").value.trim().replace(/[\s-]/g,""),p=P.find(x=>x.id===$("op").value);
+ const qty=Number($("oq").value),del=Number($("od").value||0);
+ if(!name||!/^01[3-9]\d{8}$/.test(phone)||!p||!Number.isInteger(qty)||qty<1||!(del>=0)){msg("om","নাম, সঠিক ফোন, পণ্য ও পরিমাণ দিন।",true);return}
+ if(qty>Number(p.stock||0)){msg("om","স্টকে পর্যাপ্ত পণ্য নেই।",true);return}
+ const id="NR-"+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase();
+ const sub=Number(p.price)*qty;
+ const o={orderId:id,customerName:name,phone,address:$("oa").value.trim(),productId:p.id,productName:p.name+" ×"+qty,quantity:qty,unitPrice:Number(p.price),
+  items:[{productId:p.id,name:p.name,price:Number(p.price),qty,size:"",color:""}],subtotal:sub,delivery:del,total:sub+del,paymentMethod:"COD",status:"Pending"};
+ try{await setDoc(doc(db,"orders",id),{...o,createdAt:serverTimestamp()});await setStatus({...o,id},"Confirmed");
+  ["on","oph","oa"].forEach(i=>$(i).value="");$("oq").value=1;$("od").value=0;msg("om","অর্ডার সংরক্ষিত: "+id);await loadAll()}
+ catch(x){msg("om","Error: "+x.code,true)}
+};
+
+/* customers & expenses */
+function custs(){
+ const l=$("clist");l.replaceChildren();if(!C.length){l.textContent="কোনো কাস্টমার নেই।";return}
+ C.forEach(c=>{const r=el("div",undefined,"rec");r.append(el("h3",c.name||"-"),el("div",(c.phone||"-")+" • "+(c.address||""),"mu"));
+  const d=el("button","Delete","dng");d.onclick=async()=>{if(confirm("কাস্টমার মুছবেন?")){try{await deleteDoc(doc(db,"customers",c.id));await loadAll()}catch(x){alert(x.code)}}};
+  r.append(d);l.append(r)});
+}
+function exps(){
+ const l=$("elist");l.replaceChildren();if(!E.length){l.textContent="কোনো খরচ নেই।";return}
+ [...E].sort((a,b)=>(b.date||"").localeCompare(a.date||"")).forEach(e=>{
+  const r=el("div",undefined,"rec");r.append(el("h3",e.title||"-"),el("div",money(e.amount)+" • "+(e.date||""),"mu"));
+  const d=el("button","Delete","dng");d.onclick=async()=>{if(confirm("খরচ মুছবেন?")){try{await deleteDoc(doc(db,"expenses",e.id));await loadAll()}catch(x){alert(x.code)}}};
+  r.append(d);l.append(r)});
+}
+$("eadd").onclick=async()=>{
+ const t=$("et").value.trim(),a=Number($("ea").value);
+ if(!t||!(a>0)){msg("em2","নাম ও সঠিক টাকা দিন।",true);return}
+ try{await addDoc(collection(db,"expenses"),{title:t,amount:a,date:$("ed").value,createdAt:serverTimestamp()});
+  $("et").value=$("ea").value="";msg("em2","খরচ সংরক্ষিত হয়েছে।");await loadAll()}catch(x){msg("em2",x.code,true)}
+};
+</script>
+</body>
+</html>
