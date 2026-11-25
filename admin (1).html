@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NR Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#10161a;--card:#182026;--ink:#eef2f3;--mute:#93a1ab;--line:#26323a;--accent:#2dd4bf;--red:#fb7185}
+*{box-sizing:border-box;margin:0}
+html{padding-top:env(safe-area-inset-top,0)}
+body{font-family:'Hind Siliguri','Segoe UI',sans-serif;background:var(--bg);color:var(--ink);padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0));max-width:760px;margin:auto}
+h2{font-size:20px}h3{margin-bottom:10px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px}
+.top a,.btn{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:9px 14px;font-weight:600;text-decoration:none;color:#06201d;background:var(--accent)}
+.btn.red{background:var(--red);color:#2b0610}.btn.ghost{background:var(--line);color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat p{font-size:13px;color:var(--mute)}.stat b{font-size:22px;color:var(--accent)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+input,select{width:100%;padding:11px;margin-bottom:8px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;font:inherit}
+label.chk{display:flex;gap:8px;align-items:center;margin-bottom:10px;color:var(--mute)}
+label.chk input{width:auto;margin:0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.row small{color:var(--mute);display:block}
+.acts{display:flex;gap:6px}
+.note{font-size:13px;color:var(--mute);line-height:1.6}
+#login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9}
+#login .box{width:min(340px,92%);margin:0}
+</style>
+</head>
+<body>
+<div id="login"><div class="box">
+  <h3>Admin Login</h3>
+  <input type="password" id="pw" placeholder="পাসওয়ার্ড">
+  <button class="btn" style="width:100%" id="go">প্রবেশ করুন</button>
+</div></div>
+
+<div class="top"><h2>NR Admin</h2><div class="acts"><a href="index.html">স্টোর দেখুন</a><button class="btn red" id="out">লগআউট</button></div></div>
+
+<div class="stats">
+  <div class="stat"><p>মোট পণ্য</p><b id="sP">0</b></div>
+  <div class="stat"><p>মোট স্টক</p><b id="sS">0</b></div>
+  <div class="stat"><p>অফারে</p><b id="sO">0</b></div>
+</div>
+
+<div class="box">
+  <h3 id="ft">নতুন পণ্য যোগ করুন</h3>
+  <input id="n" placeholder="পণ্যের নাম">
+  <input id="c" placeholder="ক্যাটাগরি (ছেলে / মেয়ে / শিশু / Lifestyle)" list="cl">
+  <datalist id="cl"><option value="ছেলে"><option value="মেয়ে"><option value="শিশু"><option value="Lifestyle"></datalist>
+  <input id="p" type="number" placeholder="দাম (টাকা)">
+  <input id="s" type="number" placeholder="স্টক">
+  <input id="i" placeholder="ছবির লিংক (https://...)">
+  <label class="chk"><input type="checkbox" id="o"> অফার ব্যাজ দেখান</label>
+  <button class="btn" id="save">পণ্য যোগ করুন</button>
+  <button class="btn ghost" id="cancel" style="display:none">বাতিল</button>
+</div>
+
+<div class="box">
+  <h3>পণ্যের তালিকা</h3>
+  <div id="list"></div>
+</div>
+
+<div class="box">
+  <h3>সাইটে প্রকাশ করুন</h3>
+  <p class="note">এখানের পরিবর্তন শুধু আপনার ফোনে সেভ থাকে। কাস্টমারদের সাইটে দেখাতে:<br>
+  ১. নিচের বোতামে <b>products.json</b> ডাউনলোড করুন<br>
+  ২. GitHub রিপোজিটরিতে <b>Add file → Upload files</b> দিয়ে ফাইলটা আপলোড করুন (একই নামে)<br>
+  ৩. Commit করুন, ১-২ মিনিটে সাইটে নতুন পণ্য দেখাবে</p>
+  <div class="acts" style="margin-top:12px;flex-wrap:wrap">
+    <button class="btn" id="dl">products.json ডাউনলোড</button>
+    <button class="btn ghost" id="reload">সাইটের পণ্য আবার লোড করুন</button>
+  </div>
+</div>
+
+<script>
+// পাসওয়ার্ড বদলাতে নিচের লাইনে বদলান। এটা শুধু ফোনের ঝুঁকি কমায়,
+// আসল সুরক্ষা হলো: সাইটের পণ্য বদলাতে GitHub লগইন লাগে।
+const PASS="1234";
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let products=[],editId=null;
+
+try{if(sessionStorage.getItem("nr_in")==="1")$("login").style.display="none"}catch(e){}
+$("go").onclick=()=>{if($("pw").value===PASS){try{sessionStorage.setItem("nr_in","1")}catch(e){}$("login").style.display="none"}else alert("ভুল পাসওয়ার্ড")};
+$("pw").onkeydown=e=>{if(e.key==="Enter")$("go").click()};
+$("out").onclick=()=>{try{sessionStorage.removeItem("nr_in")}catch(e){}location.reload()};
+
+function load(){
+  let d=null;try{d=JSON.parse(localStorage.getItem("nr_draft"))}catch(e){}
+  if(d){products=d;draw();return}
+  fromSite();
+}
+function fromSite(){
+  fetch("products.json?t="+Date.now()).then(r=>r.json()).then(d=>{products=d;persist();draw()}).catch(()=>{products=[];draw()});
+}
+function persist(){try{localStorage.setItem("nr_draft",JSON.stringify(products))}catch(e){}}
+
+function draw(){
+  $("sP").textContent=products.length;
+  $("sS").textContent=products.reduce((a,p)=>a+Number(p.stock),0);
+  $("sO").textContent=products.filter(p=>p.offer).length;
+  $("list").innerHTML=products.length?products.map(p=>`<div class="row"><div><b>${esc(p.name)}</b><small>${esc(p.category)} • ৳${p.price} • স্টক ${p.stock}${p.offer?" • Offer":""}</small></div>
+    <div class="acts"><button class="btn ghost" data-e="${p.id}">এডিট</button><button class="btn red" data-d="${p.id}">ডিলিট</button></div></div>`).join(""):'<p class="note">কোনো পণ্য নেই। ওপর থেকে যোগ করুন।</p>';
+}
+function reset(){editId=null;["n","c","p","s","i"].forEach(k=>$(k).value="");$("o").checked=false;$("ft").textContent="নতুন পণ্য যোগ করুন";$("save").textContent="পণ্য যোগ করুন";$("cancel").style.display="none"}
+
+$("save").onclick=()=>{
+  const name=$("n").value.trim(),price=Number($("p").value),stock=Number($("s").value);
+  if(!name||!price||$("s").value===""){alert("নাম, দাম ও স্টক অবশ্যই দিন।");return}
+  const item={name,category:$("c").value.trim()||"Lifestyle",price,stock,img:$("i").value.trim(),offer:$("o").checked};
+  if(editId){products=products.map(p=>p.id===editId?{...p,...item}:p)}
+  else products.push({id:Date.now(),...item});
+  persist();draw();reset();
+};
+$("cancel").onclick=reset;
+$("list").onclick=e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.d){if(confirm("এই পণ্যটি ডিলিট করবেন?")){products=products.filter(p=>p.id!=b.dataset.d);persist();draw()}}
+  if(b.dataset.e){const p=products.find(x=>x.id==b.dataset.e);editId=p.id;
+    $("n").value=p.name;$("c").value=p.category;$("p").value=p.price;$("s").value=p.stock;$("i").value=p.img||"";$("o").checked=!!p.offer;
+    $("ft").textContent="পণ্য এডিট করুন";$("save").textContent="পরিবর্তন সেভ করুন";$("cancel").style.display="inline-block";window.scrollTo({top:0,behavior:"smooth"})}
+};
+$("dl").onclick=()=>{
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(products,null,2)],{type:"application/json"}));
+  a.download="products.json";a.click();
+};
+$("reload").onclick=()=>{if(confirm("আপনার ফোনের অসম্পূর্ণ পরিবর্তন মুছে সাইটের পণ্য লোড হবে। নিশ্চিত?"))fromSite()};
+load();
+</script>
+</body>
+</html>
