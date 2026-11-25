@@ -1,0 +1,4 @@
+[
+  {"id":1,"name":"Premium T-Shirt","category":"ছেলে","price":550,"stock":50,"offer":true,"img":"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500"},
+  {"id":2,"name":"Classic Watch","category":"Lifestyle","price":1200,"stock":20,"offer":false,"img":"https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500"}
+]
